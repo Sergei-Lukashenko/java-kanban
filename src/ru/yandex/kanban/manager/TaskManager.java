@@ -158,6 +158,7 @@ public class TaskManager implements ITaskManager {
         final int epicId = subtask.getEpicId();
         Epic epic = getEpic(epicId);
         subtasks.remove(id);
+        epic.removeSubtaskId(id);
         if (epic != null) {
             updateEpicStatus(epic);
         }
