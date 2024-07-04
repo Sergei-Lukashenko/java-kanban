@@ -4,15 +4,15 @@ import ru.yandex.kanban.tasks.Epic;
 import ru.yandex.kanban.tasks.Subtask;
 import ru.yandex.kanban.tasks.Task;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public interface ITaskManager {
 
-    ArrayList<Task> getTasks();
-    ArrayList<Epic> getEpics();
-    ArrayList<Subtask> getSubtasks();
+    List<Task> getTasks();
+    List<Epic> getEpics();
+    List<Subtask> getSubtasks();
 
-    ArrayList<Subtask> getEpicSubtasks(int epicId);
+    List<Subtask> getEpicSubtasks(int epicId);
 
     Task getTask(int id);
     Epic getEpic(int id);

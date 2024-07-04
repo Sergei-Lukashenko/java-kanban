@@ -10,17 +10,10 @@ public class Task {
 
     protected TaskStatus status;
 
-    public Task(int id, String title, String description, TaskStatus status) {
-        this.id = id;
+    public Task(String title, String description) {
         this.title = title;
         this.description = description;
-        this.status = status;
-    }
-
-    public Task(String title, String description, TaskStatus status) {
-        this.title = title;
-        this.description = description;
-        this.status = status;
+        this.status = TaskStatus.NEW;
     }
 
     public int getId() {
@@ -74,15 +67,18 @@ public class Task {
 
     @Override
     public String toString() {
-        String result = "Task{" +
-                   "id=" + id +
-                   ", title='" + title + '\'' +
-                   ", status=" + status;
+        return "Task{" + getTaskString() + '}';
+    }
+
+    String getTaskString() {
+        String result = "id=" + id +
+                        ", title='" + title + '\'' +
+                        ", status=" + status;
         if (description == null) {
             result += ", description is empty";
         } else {
-            result += ", description length = " + description.length();
+            result += ", description length=" + description.length();
         }
-        return result + '}';
+        return result;
     }
 }

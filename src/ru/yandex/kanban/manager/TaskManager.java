@@ -183,7 +183,7 @@ public class TaskManager implements ITaskManager {
         }
     }
 
-    void updateEpicStatus(Epic epic) {
+    private void updateEpicStatus(Epic epic) {
         HashSet<TaskStatus> subtaskStatusSet = new HashSet<>();
         for (Integer subtaskId : epic.getSubtaskIds()) {
             Subtask subtask = getSubtask(subtaskId);
