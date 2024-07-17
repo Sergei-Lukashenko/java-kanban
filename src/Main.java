@@ -1,19 +1,20 @@
 import ru.yandex.kanban.manager.TaskManager;
+import ru.yandex.kanban.manager.Managers;
+import ru.yandex.kanban.tasks.Task;
 import ru.yandex.kanban.tasks.Epic;
 import ru.yandex.kanban.tasks.Subtask;
-import ru.yandex.kanban.tasks.Task;
 import ru.yandex.kanban.tasks.TaskStatus;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        TaskManager manager = new TaskManager();
+        TaskManager manager = Managers.getDefault();
 
         // Создание
-        Task task1 = new Task("Task #1", "Task1 description"); // TaskStatus.NEW
+        Task task1 = new Task("Task #1", "Task1 description");
         Task task2 = new Task("Task #2", "Task2 description");
         task2.setStatus(TaskStatus.IN_PROGRESS);
         final int taskId1 = manager.addNewTask(task1);
@@ -22,25 +23,25 @@ public class Main {
         Task storedTask1 = manager.getTask(taskId1);
         System.out.println("storedTask1.id = " + storedTask1.getId() + ", task1.id = " + task1.getId());
 
-        ArrayList<Task> tasks = manager.getTasks();
+        List<Task> tasks = manager.getTasks();
         if (tasks.contains(task1) && tasks.contains(task2)) {
             System.out.println("Task1 и Task2 добавлены успешно");
         } else {
             System.out.println("Какие-то проблемы с добавлением Task1 и Task2");
         }
 
-        Epic epic1 = new Epic("Epic #1", "Epic1 description");   // TaskStatus.NEW
-        Epic epic2 = new Epic("Epic #2", "Epic2 description");   // TaskStatus.NEW
+        Epic epic1 = new Epic("Epic #1", "Epic1 description");
+        Epic epic2 = new Epic("Epic #2", "Epic2 description");
         final int epicId1 = manager.addNewEpic(epic1);
         final int epicId2 = manager.addNewEpic(epic2);
 
-        Subtask subtask1 = new Subtask("Subtask #1-1", "Subtask1 description", epicId1);  // TaskStatus.NEW
-        Subtask subtask2 = new Subtask("Subtask #2-1", "Subtask2 description", epicId1);  // TaskStatus.NEW
+        Subtask subtask1 = new Subtask("Subtask #1-1", "Subtask1 description", epicId1);
+        Subtask subtask2 = new Subtask("Subtask #2-1", "Subtask2 description", epicId1);
         Subtask subtask3 = new Subtask("Subtask #3-2", "Subtask3 description", epicId2);
         subtask3.setStatus(TaskStatus.DONE);
 
-        final int subtaskId1 = manager.addNewSubtask(subtask1);
-        final int subtaskId2 = manager.addNewSubtask(subtask2);
+        manager.addNewSubtask(subtask1);
+        manager.addNewSubtask(subtask2);
         final int subtaskId3 = manager.addNewSubtask(subtask3);
 
         Epic checkedEpic = manager.getEpic(epicId1);
@@ -88,10 +89,19 @@ public class Main {
         System.out.println("Epics:");
         for (Epic e : manager.getEpics()) {
             System.out.println("\t" + e);
+            for (Task st : manager.getEpicSubtasks(e.getId())) {
+                System.out.println("\t--> " + st);
+            }
         }
         System.out.println("Subtasks:");
         for (Subtask s : manager.getSubtasks()) {
             System.out.println("\t" + s);
+        }
+
+        System.out.println("History:");
+        int seq = 1;
+        for (Task task : manager.getHistory()) {
+            System.out.println("\t" + (seq++) + ") " + task);
         }
     }
 
