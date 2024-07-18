@@ -24,4 +24,8 @@ class InMemoryHistoryManager implements HistoryManager {
     public List<Task> getHistory() {
         return history;
     }
+
+    public void clear() {
+        history.clear();
+    }
 }

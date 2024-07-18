@@ -1,12 +1,16 @@
 package ru.yandex.kanban.manager;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.kanban.tasks.Task;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
 
-class InMemoryHistoryManagerTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+class HistoryManagerTest {
 
     private static TaskManager manager;
     private static HistoryManager historyManager;
@@ -15,6 +19,29 @@ class InMemoryHistoryManagerTest {
     public static void beforeAll() {
         manager = Managers.getDefault();
         historyManager = Managers.getDefaultHistory();
+    }
+
+    @BeforeEach
+    public void beforeEach() { historyManager.clear();  }
+
+    @Test
+    void shouldKeepHistoryAfterAddingAnItem() {
+        Task task = new Task("Task title", "Task description");
+        historyManager.add(task);
+        final List<Task> history = historyManager.getHistory();
+        assertNotNull(history, "History is not null.");
+        assertEquals(1, history.size(), "History is not empty.");
+    }
+
+    @Test
+    void shouldNotChangeTheTaskAfterRepetitiveAddition() {
+        Task task = new Task("Task title", "Task description");
+        historyManager.add(task);
+        historyManager.add(task);
+        final List<Task> history = historyManager.getHistory();
+        Task task1 = history.get(0);
+        Task task2 = history.get(1);
+        assertEquals(task1, task2, "History could keep the same tasks.");
     }
 
     @Test

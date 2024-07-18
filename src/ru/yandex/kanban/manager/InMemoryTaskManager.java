@@ -20,14 +20,10 @@ public class InMemoryTaskManager implements TaskManager {
                               // see also Managers.getDefault()
 
     @Override
-    public ArrayList<Task> getTasks() {
-        return new ArrayList<>(tasks.values());
-    }
+    public ArrayList<Task> getTasks() { return new ArrayList<>(tasks.values()); }
 
     @Override
-    public ArrayList<Epic> getEpics() {
-        return new ArrayList<>(epics.values());
-    }
+    public ArrayList<Epic> getEpics() { return new ArrayList<>(epics.values()); }
 
     @Override
     public ArrayList<Subtask> getSubtasks() {
