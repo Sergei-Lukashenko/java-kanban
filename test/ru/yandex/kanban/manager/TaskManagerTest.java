@@ -20,6 +20,26 @@ class TaskManagerTest {
     }
 
     @Test
+    void shouldReturnLimitedHistoryWhenHistoryLimitExceededForInMemoryHistoryManager() {
+        manager.deleteAllTasks();
+
+        final int maxHistoryLen = InMemoryHistoryManager.MAX_HISTORY_LEN;
+        final int tasksNumber = maxHistoryLen + 2;
+        for (int i = 0; i < tasksNumber; i++) {  // steps number > maxHistoryLen
+            Task task = new Task("Task title " + i, "Task description");
+            manager.addNewTask(task);
+        }
+        assertEquals(tasksNumber, manager.getTasks().size(),
+                "Task manager returns task number greater than history length");
+        for (Task t : manager.getTasks()) {  // get all the tasks one-by-one with manager.getTask()
+            int id = t.getId();
+            manager.getTask(id);
+        }
+        List<Task> histList = manager.getHistory();
+        assertEquals(maxHistoryLen, histList.size(), "Task manager returns limited history");
+    }
+
+    @Test
     void shouldReturnTheSameTaskAfterAddingNewTask() {
         manager.deleteAllTasks();
 
