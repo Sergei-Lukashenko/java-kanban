@@ -66,7 +66,9 @@ public class Task {
     }
 
     @Override
-    public String toString() { return "Task{" + getTaskString() + '}';  }
+    public String toString() {
+        return "Task{" + getTaskString() + '}';
+    }
 
     String getTaskString() {
         String result = "id=" + id +
