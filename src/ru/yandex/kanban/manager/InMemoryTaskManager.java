@@ -16,8 +16,8 @@ public class InMemoryTaskManager implements TaskManager {
     
     private int seqId;
 
-    InMemoryTaskManager() {}  // empty package-private constructor to avoid cross-package access,
-                              // see also Managers.getDefault()
+    InMemoryTaskManager() {   // empty package-private constructor to avoid cross-package access,
+    }                         // see also Managers.getDefault()
 
     @Override
     public ArrayList<Task> getTasks() { return new ArrayList<>(tasks.values()); }

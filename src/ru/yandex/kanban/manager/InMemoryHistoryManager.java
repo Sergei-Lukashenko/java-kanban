@@ -12,8 +12,8 @@ class InMemoryHistoryManager implements HistoryManager {
 
     private final CustomLinkedList history = new CustomLinkedList();
 
-    InMemoryHistoryManager() {}  // empty package-private constructor to avoid cross-package access,
-                                 // see also Managers.getDefaultHistory()
+    InMemoryHistoryManager() {   // empty package-private constructor to avoid cross-package access,
+    }                            // see also Managers.getDefaultHistory()
 
     @Override
     public void add(Task task) {
@@ -48,65 +48,64 @@ class InMemoryHistoryManager implements HistoryManager {
         history.clear();
         nodeStorage.clear();
     }
-}
 
+    private static class CustomLinkedList {
+        private Node head;
+        private Node tail;
+        private int size = 0;
 
-class CustomLinkedList {
-    private Node head;
-    private Node tail;
-    private int size = 0;
-
-    public Node linkLast(Task task) {
-        final Node oldTail = tail;
-        final Node newNode = new Node(oldTail, task, null);
-        tail = newNode;
-        if (oldTail == null) {
-            head = newNode;
-        } else {
-            oldTail.next = newNode;
+        public Node linkLast(Task task) {
+            final Node oldTail = tail;
+            final Node newNode = new Node(oldTail, task, null);
+            tail = newNode;
+            if (oldTail == null) {
+                head = newNode;
+            } else {
+                oldTail.next = newNode;
+            }
+            size++;
+            return newNode;
         }
-        size++;
-        return newNode;
-    }
 
-    ArrayList<Task> getTasks() {
-        ArrayList<Task> history = new ArrayList<>();
-        Node item = head;
-        if (item == null) {
+        ArrayList<Task> getTasks() {
+            ArrayList<Task> history = new ArrayList<>();
+            Node item = head;
+            if (item == null) {
+                return history;
+            }
+            history.add(item.task);
+            while (item.next != null) {
+                item = item.next;
+                history.add(item.task);
+            }
             return history;
         }
-        history.add(item.task);
-        while (item.next != null) {
-            item = item.next;
-            history.add(item.task);
-        }
-        return history;
-    }
 
-    void removeNode(Node node) {
-        final Node next = node.next;
-        final Node prev = node.prev;
+        void removeNode(Node node) {
+            final Node next = node.next;
+            final Node prev = node.prev;
 
-        if (prev == null) {
-            head = next;
-        } else {
-            prev.next = next;
-            node.prev = null;
-        }
+            if (prev == null) {
+                head = next;
+            } else {
+                prev.next = next;
+                node.prev = null;
+            }
 
-        if (next == null) {
-            tail = prev;
-        } else {
-            next.prev = prev;
-            node.next = null;
+            if (next == null) {
+                tail = prev;
+            } else {
+                next.prev = prev;
+                node.next = null;
+            }
+
+            node.task = null;
+            size--;
         }
 
-        node.task = null;
-        size--;
-    }
-
-    void clear() {
-        head = tail = null;
-        size = 0;
+        void clear() {
+            head = tail = null;
+            size = 0;
+        }
     }
 }
