@@ -13,17 +13,20 @@ public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
 
     HistoryManager history = Managers.getDefaultHistory();
-    
     private int seqId;
 
     InMemoryTaskManager() {   // empty package-private constructor to avoid cross-package access,
     }                         // see also Managers.getDefault()
 
     @Override
-    public ArrayList<Task> getTasks() { return new ArrayList<>(tasks.values()); }
+    public ArrayList<Task> getTasks() {
+        return new ArrayList<>(tasks.values());
+    }
 
     @Override
-    public ArrayList<Epic> getEpics() { return new ArrayList<>(epics.values()); }
+    public ArrayList<Epic> getEpics() {
+        return new ArrayList<>(epics.values());
+    }
 
     @Override
     public ArrayList<Subtask> getSubtasks() {
@@ -31,7 +34,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public List<Task> getHistory() { return history.getHistory(); }
+    public List<Task> getHistory() {
+        return history.getHistory();
+    }
 
     @Override
     public ArrayList<Subtask> getEpicSubtasks(int id) {
@@ -137,7 +142,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteTask(int id) { tasks.remove(id); }
+    public void deleteTask(int id) {
+        tasks.remove(id);
+    }
 
     @Override
     public void deleteEpic(int id) {
@@ -195,10 +202,10 @@ public class InMemoryTaskManager implements TaskManager {
                 subtaskStatusSet.add(subtask.getStatus());
             }
         }
-        if (subtaskStatusSet.isEmpty() || (subtaskStatusSet.size()==1 && subtaskStatusSet.contains(TaskStatus.NEW))) {
+        if (subtaskStatusSet.isEmpty() || (subtaskStatusSet.size() == 1 && subtaskStatusSet.contains(TaskStatus.NEW))) {
             // у Эпика нет подзадач или все они имеют статус NEW --> статус Эпика должен быть NEW
             epic.setStatus(TaskStatus.NEW);
-        } else if (subtaskStatusSet.size()==1 && subtaskStatusSet.contains(TaskStatus.DONE)) {
+        } else if (subtaskStatusSet.size() == 1 && subtaskStatusSet.contains(TaskStatus.DONE)) {
             // если все подзадачи имеют статус DONE --> Эпик считается завершённым — со статусом DONE
             epic.setStatus(TaskStatus.DONE);
         } else {
