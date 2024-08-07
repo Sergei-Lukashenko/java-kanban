@@ -47,7 +47,7 @@ class HistoryManagerTest {
         historyManager.add(task);
         historyManager.add(task);
         final List<Task> history = historyManager.getHistory();
-        Task taskFromHist = history.get(0);
+        Task taskFromHist = history.getFirst();
         assertEquals(task, taskFromHist, "History will keep the single task after repetitive addition.");
         assertEquals(1, history.size(), "History length after repetitive addition must be = 1.");
     }
