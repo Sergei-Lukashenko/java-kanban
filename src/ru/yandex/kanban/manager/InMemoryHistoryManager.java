@@ -68,14 +68,15 @@ class InMemoryHistoryManager implements HistoryManager {
         }
 
         ArrayList<Task> getTasks() {
+            // returns the history of tasks from the newest to the oldest one
             ArrayList<Task> history = new ArrayList<>();
-            Node item = head;
+            Node item = tail;
             if (item == null) {
                 return history;
             }
             history.add(item.task);
-            while (item.next != null) {
-                item = item.next;
+            while (item.prev != null) {
+                item = item.prev;
                 history.add(item.task);
             }
             return history;

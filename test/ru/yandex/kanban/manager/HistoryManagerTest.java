@@ -37,7 +37,7 @@ class HistoryManagerTest {
         Task task = new Task("Task title", "Task description");
         historyManager.add(task);
         final List<Task> history = historyManager.getHistory();
-        assertNotNull(history, "History is not null.");
+        assertNotNull(history, "History is not null after adding one task.");
         assertEquals(1, history.size(), "History is not empty.");
     }
 
@@ -50,6 +50,18 @@ class HistoryManagerTest {
         Task taskFromHist = history.getFirst();
         assertEquals(task, taskFromHist, "History will keep the single task after repetitive addition.");
         assertEquals(1, history.size(), "History length after repetitive addition must be = 1.");
+    }
+
+    @Test
+    void shouldRemoveTheTaskCorrectly() {
+        Task task = new Task("Task title", "Task description");
+        historyManager.add(task);
+        List<Task> history = historyManager.getHistory();
+        Task taskFromHist = history.getFirst();
+        historyManager.remove(taskFromHist.getId());
+        history = historyManager.getHistory();
+        assertNotNull(history, "History is not null after deleting a single added task.");
+        assertEquals(0, history.size(), "History length after addition/removal must be = 0.");
     }
 
 }

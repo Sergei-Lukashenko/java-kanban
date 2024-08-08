@@ -26,7 +26,7 @@ class TaskManagerTest {
 
         Task task = new Task("Task title", "Task description");
         final int id = manager.addNewTask(task);
-        Task returnedTask = manager.getTask(id);
+        Task returnedTask = manager.getTaskById(id);
         assertEquals(task, returnedTask, "Added task is not equal to the returned one");
 
         final List<Task> tasks = manager.getTasks();
@@ -41,7 +41,7 @@ class TaskManagerTest {
 
         Epic epic = new Epic("Epic title", "Epic description");
         final int id = manager.addNewEpic(epic);
-        Epic returnedEpic = manager.getEpic(id);
+        Epic returnedEpic = manager.getEpicById(id);
         assertEquals(epic, returnedEpic, "Added epic is not equal to the returned one");
 
         final List<Epic> epics = manager.getEpics();
@@ -58,7 +58,7 @@ class TaskManagerTest {
         final int id = manager.addNewEpic(epic);
         Subtask subtask = new Subtask("Subtask title", "Subtask description", id);
         final int subtaskId = manager.addNewSubtask(subtask);
-        Subtask returnedSubtask = manager.getSubtask(subtaskId);
+        Subtask returnedSubtask = manager.getSubtaskById(subtaskId);
         assertEquals(subtask, returnedSubtask, "Added subtask is not equal to the returned one");
 
         final List<Subtask> subtasks = manager.getSubtasks();
@@ -104,7 +104,7 @@ class TaskManagerTest {
 
         Task task = new Task("Task title", "Task description");
         final int id = manager.addNewTask(task);
-        assertEquals(id, manager.getTask(id).getId(), "Task id stored in manager correctly");
+        assertEquals(id, manager.getTaskById(id).getId(), "Task id stored in manager correctly");
 
         final List<Task> history = manager.getHistory();
 
