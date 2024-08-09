@@ -10,6 +10,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TaskManagerTest {
     private static TaskManager manager;
@@ -20,32 +21,12 @@ class TaskManagerTest {
     }
 
     @Test
-    void shouldReturnLimitedHistoryWhenHistoryLimitExceededForInMemoryHistoryManager() {
-        manager.deleteAllTasks();
-
-        final int maxHistoryLen = InMemoryHistoryManager.MAX_HISTORY_LEN;
-        final int tasksNumber = maxHistoryLen + 2;
-        for (int i = 0; i < tasksNumber; i++) {  // steps number > maxHistoryLen
-            Task task = new Task("Task title " + i, "Task description");
-            manager.addNewTask(task);
-        }
-        assertEquals(tasksNumber, manager.getTasks().size(),
-                "Task manager returns task number greater than history length");
-        for (Task t : manager.getTasks()) {  // get all the tasks one-by-one with manager.getTask()
-            int id = t.getId();
-            manager.getTask(id);
-        }
-        List<Task> histList = manager.getHistory();
-        assertEquals(maxHistoryLen, histList.size(), "Task manager returns limited history");
-    }
-
-    @Test
     void shouldReturnTheSameTaskAfterAddingNewTask() {
         manager.deleteAllTasks();
 
         Task task = new Task("Task title", "Task description");
         final int id = manager.addNewTask(task);
-        Task returnedTask = manager.getTask(id);
+        Task returnedTask = manager.getTaskById(id);
         assertEquals(task, returnedTask, "Added task is not equal to the returned one");
 
         final List<Task> tasks = manager.getTasks();
@@ -60,7 +41,7 @@ class TaskManagerTest {
 
         Epic epic = new Epic("Epic title", "Epic description");
         final int id = manager.addNewEpic(epic);
-        Epic returnedEpic = manager.getEpic(id);
+        Epic returnedEpic = manager.getEpicById(id);
         assertEquals(epic, returnedEpic, "Added epic is not equal to the returned one");
 
         final List<Epic> epics = manager.getEpics();
@@ -77,12 +58,57 @@ class TaskManagerTest {
         final int id = manager.addNewEpic(epic);
         Subtask subtask = new Subtask("Subtask title", "Subtask description", id);
         final int subtaskId = manager.addNewSubtask(subtask);
-        Subtask returnedSubtask = manager.getSubtask(subtaskId);
+        Subtask returnedSubtask = manager.getSubtaskById(subtaskId);
         assertEquals(subtask, returnedSubtask, "Added subtask is not equal to the returned one");
 
         final List<Subtask> subtasks = manager.getSubtasks();
         assertNotNull(subtasks, "No subtasks returned.");
         assertEquals(1, subtasks.size(), "Wrong size of subtask list.");
         assertEquals(subtask, subtasks.getFirst(), "Added subtask is not equal to the subtask in the list.");
+    }
+
+    @Test
+    void shouldDeleteSubtaskFromEpicAfterDeletingSubtask() {
+        manager.deleteAllEpics();
+
+        Epic epic = new Epic("Epic title", "Epic description");
+        final int epicId = manager.addNewEpic(epic);
+
+        Subtask subtask1 = new Subtask("Subtask #1", "Subtask1 description", epicId);
+        Subtask subtask2 = new Subtask("Subtask #2", "Subtask2 description", epicId);
+
+        final int subtask1Id = subtask1.getId();
+        final int subtask2Id = subtask2.getId();
+
+        epic.removeSubtaskId(subtask2Id);
+        for (int subtaskId : epic.getSubtaskIds()) {
+            assertEquals(subtask1Id, subtaskId, "Only subtask1 is kept in Epic");
+        }
+    }
+
+    @Test
+    void shouldReturnHistoryListWhenNoTasks() {
+        HistoryManager historyManager = Managers.getDefaultHistory();
+        historyManager.clear();
+
+        final List<Task> history = manager.getHistory();
+
+        assertNotNull(history, "Manager must return  history on start.");
+        assertTrue(history.isEmpty(), "History is empty on start.");
+    }
+
+    @Test
+    void shouldReturnOneItemHistoryAfterAddingOneTask() {
+        HistoryManager historyManager = Managers.getDefaultHistory();
+        historyManager.clear();
+
+        Task task = new Task("Task title", "Task description");
+        final int id = manager.addNewTask(task);
+        assertEquals(id, manager.getTaskById(id).getId(), "Task id stored in manager correctly");
+
+        final List<Task> history = manager.getHistory();
+
+        assertNotNull(history, "Manager must return history after adding 1 task.");
+        assertEquals(1, history.size(), "History size must be = 1.");
     }
 }

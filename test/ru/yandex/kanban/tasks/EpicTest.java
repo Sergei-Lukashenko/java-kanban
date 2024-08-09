@@ -27,7 +27,7 @@ class EpicTest {
         final int subtaskId = manager.addNewSubtask(subtask);
         for (Integer addedSubtaskId : epic.getSubtaskIds()) {
             assertEquals(subtaskId, addedSubtaskId);
-            assertEquals(subtask, manager.getSubtask(addedSubtaskId));
+            assertEquals(subtask, manager.getSubtaskById(addedSubtaskId));
         }
     }
 

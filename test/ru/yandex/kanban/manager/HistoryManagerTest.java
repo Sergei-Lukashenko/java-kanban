@@ -9,6 +9,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class HistoryManagerTest {
 
@@ -25,46 +26,42 @@ class HistoryManagerTest {
     public void beforeEach() { historyManager.clear();  }
 
     @Test
+    void shouldReturnEmptyHistoryListWhenNoTasks() {
+        final List<Task> history = historyManager.getHistory();
+        assertNotNull(history, "History is not null.");
+        assertTrue(history.isEmpty(), "History must be empty.");
+    }
+
+    @Test
     void shouldKeepHistoryAfterAddingAnItem() {
         Task task = new Task("Task title", "Task description");
         historyManager.add(task);
         final List<Task> history = historyManager.getHistory();
-        assertNotNull(history, "History is not null.");
+        assertNotNull(history, "History is not null after adding one task.");
         assertEquals(1, history.size(), "History is not empty.");
     }
 
     @Test
-    void shouldNotChangeTheTaskAfterRepetitiveAddition() {
+    void shouldKeepTheSingleTaskAfterRepetitiveAddition() {
         Task task = new Task("Task title", "Task description");
         historyManager.add(task);
         historyManager.add(task);
         final List<Task> history = historyManager.getHistory();
-        Task task1 = history.get(0);
-        Task task2 = history.get(1);
-        assertEquals(task1, task2, "History could keep the same tasks.");
+        Task taskFromHist = history.getFirst();
+        assertEquals(task, taskFromHist, "History will keep the single task after repetitive addition.");
+        assertEquals(1, history.size(), "History length after repetitive addition must be = 1.");
     }
 
     @Test
-    public void shouldKeepHistoryForSpecifiedMaximumLengthAndRotateProperly() {
-        int maxHistoryLength = 0;
-        if (historyManager instanceof InMemoryHistoryManager) {
-            maxHistoryLength = InMemoryHistoryManager.MAX_HISTORY_LEN;
-        }
-        for (int i = 1; i <= maxHistoryLength ; i++) {
-            Task task = new Task("Task title #" + i, "Task description");
-            manager.addNewTask(task);
-            historyManager.add(task);
-        }
-
-        Task task = new Task("Task title #" + (maxHistoryLength + 1), "Task description");
-        manager.addNewTask(task);
+    void shouldRemoveTheTaskCorrectly() {
+        Task task = new Task("Task title", "Task description");
         historyManager.add(task);
-
-        int seqNo = 2;   // first item in history must be rotated and removed from history
-        for (Task t : historyManager.getHistory()) {
-            assertEquals("Task title #" + seqNo, t.getTitle());
-            seqNo++;
-        }
+        List<Task> history = historyManager.getHistory();
+        Task taskFromHist = history.getFirst();
+        historyManager.remove(taskFromHist.getId());
+        history = historyManager.getHistory();
+        assertNotNull(history, "History is not null after deleting a single added task.");
+        assertEquals(0, history.size(), "History length after addition/removal must be = 0.");
     }
 
 }

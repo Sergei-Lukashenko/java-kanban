@@ -1,9 +1,9 @@
 package ru.yandex.kanban.manager;
 
-final public class Managers {
+public final class Managers {
 
     private static TaskManager DEFAULT_MANAGER;
-    private static HistoryManager DEFAULT_HISTORY ;
+    private static HistoryManager DEFAULT_HISTORY;
 
     private Managers() {
         throw new RuntimeException("Utility class Managers cannot be implemented, call Managers.getDefault*() instead");

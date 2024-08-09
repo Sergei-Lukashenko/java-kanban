@@ -30,7 +30,7 @@ public class Epic extends Task {
     }
 
     public void removeSubtaskId(int id) {
-        subtaskIds.remove(Integer.valueOf(id));
+        subtaskIds.remove(Integer.valueOf(id));  // remove Integer object, not by int index!
     }
 
     @Override

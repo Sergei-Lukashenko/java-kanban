@@ -20,7 +20,7 @@ public class Main {
         final int taskId1 = manager.addNewTask(task1);
         final int taskId2 = manager.addNewTask(task2);
 
-        Task storedTask1 = manager.getTask(taskId1);
+        Task storedTask1 = manager.getTaskById(taskId1);
         System.out.println("storedTask1.id = " + storedTask1.getId() + ", task1.id = " + task1.getId());
 
         List<Task> tasks = manager.getTasks();
@@ -44,13 +44,13 @@ public class Main {
         manager.addNewSubtask(subtask2);
         final int subtaskId3 = manager.addNewSubtask(subtask3);
 
-        Epic checkedEpic = manager.getEpic(epicId1);
+        Epic checkedEpic = manager.getEpicById(epicId1);
         if (checkedEpic.getStatus() == TaskStatus.NEW) {
             System.out.println("epic1.status == NEW, как и должно быть");
         } else {
             System.out.println("Что-то не так со статусом epic1");
         }
-        checkedEpic = manager.getEpic(epicId2);
+        checkedEpic = manager.getEpicById(epicId2);
         if (checkedEpic.getStatus() == TaskStatus.DONE) {
             System.out.println("epic2.status == DONE, как и должно быть");
         } else {
@@ -60,13 +60,13 @@ public class Main {
         printAllTasks(manager);
 
         // Обновление
-        final Task task = manager.getTask(taskId2);
+        final Task task = manager.getTaskById(taskId2);
         task.setStatus(TaskStatus.DONE);
         manager.updateTask(task);
         System.out.println("updateTask() для task2 с IN_PROGRESS в DONE выполнен");
         printTasks(manager);
 
-        final Subtask subtask = manager.getSubtask(subtaskId3);
+        final Subtask subtask = manager.getSubtaskById(subtaskId3);
         subtask.setStatus(TaskStatus.IN_PROGRESS);
         manager.updateSubtask(subtask);
         System.out.println("updateSubtask() для subtask3 с DONE в IN_PROGRESS выполнен");
