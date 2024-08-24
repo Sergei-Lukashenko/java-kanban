@@ -1,9 +1,8 @@
 package ru.yandex.kanban.manager;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.kanban.tasks.Task;
-import ru.yandex.kanban.tasks.TaskStatus;
+import ru.yandex.kanban.tasks.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,21 +13,21 @@ public class FileBackedTaskManagerTest {
     private static FileBackedTaskManager manager;
     private static File file;
 
-    @BeforeAll
-    public static void beforeAll() {
+    @BeforeEach
+    public void beforeEach() {
         try {
             file = File.createTempFile("java-kanban", null, null);
         } catch (IOException exception) {
             exception.printStackTrace();
         }
-        manager = Managers.getFileDefault(file.getPath());
+        manager = new FileBackedTaskManager(file);
     }
 
     @Test
     void shouldSaveAndRestoreEmptyFile() {
         manager.deleteAllTasks();
-
-        manager.save();
+        manager.deleteAllEpics();
+        manager.deleteAllSubtasks();
 
         FileBackedTaskManager newManager = FileBackedTaskManager.loadFromFile(file);
 
@@ -49,8 +48,24 @@ public class FileBackedTaskManagerTest {
         Task fileTask1 = newManager.getTaskById(taskId1);
         Task fileTask2 = newManager.getTaskById(taskId2);
 
-        assertEquals(task1, fileTask1);
-        assertEquals(task2, fileTask2);
+        assertEquals(task1, fileTask1, "Task #1 restored from file correctly" );
+        assertEquals(task2, fileTask2, "Task #2 restored from file correctly");
     }
 
+    @Test
+    void shouldCorrectlySaveAndRestoreEpicReferenceForSubtask() {
+        Epic epic = new Epic("Epic #1", "Epic #1 description");
+        int epicId = manager.addNewEpic(epic);
+
+        Subtask subtask = new Subtask("Subtask #1", "Subtask #1 description", epicId);
+        int subtaskId = manager.addNewSubtask(subtask);
+
+        FileBackedTaskManager newManager = FileBackedTaskManager.loadFromFile(file);
+        Epic fileEpic = newManager.getEpicById(epicId);
+        Subtask fileSubtask = newManager.getSubtaskById(subtaskId);
+
+        assertEquals(epicId, fileEpic.getId(),"Epic ID restored from file correctly");
+        assertEquals(subtaskId, fileSubtask.getId(),"Subtask ID restored from file correctly");
+        assertEquals(epicId, fileSubtask.getEpicId(),"Epic ID for subtask restored from file correctly");
+    }
 }
