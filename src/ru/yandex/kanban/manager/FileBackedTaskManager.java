@@ -9,7 +9,9 @@ import java.nio.file.Files;
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file;
 
-    public FileBackedTaskManager(File file) { this.file = file; }
+    public FileBackedTaskManager(File file) {
+        this.file = file;
+    }
 
     private void save() {
         try (Writer writer = new FileWriter(file, StandardCharsets.UTF_8);
