@@ -30,7 +30,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             //noinspection CallToPrintStackTrace
             exception.printStackTrace();
             String shortMess = exception.getMessage();
-            throw new ManagerSaveException("An error occurred on writing CSV file" + file.getName()
+            throw new ManagerSaveException(String.format("CSV file %s writing error", file.getName())
                     + (shortMess != null ? ": " + shortMess : ""),
                     exception
             );
