@@ -19,7 +19,7 @@ public final class Managers {
         return DEFAULT_MANAGER;
     }
 
-    public static FileBackedTaskManager getFileDefault(String fileName) {
+    public static FileBackedTaskManager getDefaultFileMan(String fileName) {
         if (DEFAULT_FILE_MANAGER == null) {
             DEFAULT_FILE_MANAGER = new FileBackedTaskManager(new File(fileName));
         }
