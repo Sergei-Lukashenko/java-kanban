@@ -1,8 +1,11 @@
 package ru.yandex.kanban.manager;
 
+import java.io.File;
+
 public final class Managers {
 
     private static TaskManager DEFAULT_MANAGER;
+    private static FileBackedTaskManager DEFAULT_FILE_MANAGER;
     private static HistoryManager DEFAULT_HISTORY;
 
     private Managers() {
@@ -14,6 +17,13 @@ public final class Managers {
             DEFAULT_MANAGER = new InMemoryTaskManager();
         }
         return DEFAULT_MANAGER;
+    }
+
+    public static FileBackedTaskManager getFileDefault(String fileName) {
+        if (DEFAULT_FILE_MANAGER == null) {
+            DEFAULT_FILE_MANAGER = new FileBackedTaskManager(new File(fileName));
+        }
+        return DEFAULT_FILE_MANAGER;
     }
 
     public static HistoryManager getDefaultHistory() {
