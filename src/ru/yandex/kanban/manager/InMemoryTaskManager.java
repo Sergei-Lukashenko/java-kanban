@@ -42,7 +42,7 @@ public class InMemoryTaskManager implements TaskManager {
     public ArrayList<Subtask> getEpicSubtasks(int id) {
         Epic epic = getEpicById(id);
         if (epic == null) {
-            throw new RuntimeException("Not found Epic with id=" + id);
+            throw new NoSuchElementException("Not found Epic with id=" + id);
         }
         ArrayList<Subtask> subtaskList = new ArrayList<>();
         for (Integer subtaskId : epic.getSubtaskIds()) {
@@ -96,7 +96,7 @@ public class InMemoryTaskManager implements TaskManager {
         final int epicId = subtask.getEpicId();
         Epic epic = getEpicById(epicId);
         if (epic == null) {
-            throw new RuntimeException("Not found Epic with id=" + epicId + " specified for subtask #" + id);
+            throw new NoSuchElementException("Not found Epic with id=" + epicId + " specified for subtask #" + id);
         }
         subtasks.put(id, subtask);
         epic.addSubtaskId(id);
@@ -109,7 +109,7 @@ public class InMemoryTaskManager implements TaskManager {
         final int taskId = task.getId();
         Task existingTask = getTaskById(taskId);
         if (existingTask == null) {
-            throw new RuntimeException("Task with id=" + taskId + " not found. Cannot update " + task);
+            throw new NoSuchElementException("Task with id=" + taskId + " not found. Cannot update " + task);
         }
         tasks.put(taskId, task);
     }
@@ -119,7 +119,7 @@ public class InMemoryTaskManager implements TaskManager {
         final int epicId = epic.getId();
         Epic existingEpic = getEpicById(epicId);
         if (existingEpic == null) {
-            throw new RuntimeException("Epic with id=" + epicId + " not found. Cannot update " + epic);
+            throw new NoSuchElementException("Epic with id=" + epicId + " not found. Cannot update " + epic);
         }
         epics.put(epicId, epic);
         updateEpicStatus(epic);
@@ -130,12 +130,12 @@ public class InMemoryTaskManager implements TaskManager {
         final int subtaskId = subtask.getId();
         Subtask existingSubtask = getSubtaskById(subtaskId);
         if (existingSubtask == null) {
-            throw new RuntimeException("Subtask with id=" + subtaskId + " not found. Cannot update " + subtask);
+            throw new NoSuchElementException("Subtask with id=" + subtaskId + " not found. Cannot update " + subtask);
         }
         final int epicId = subtask.getEpicId();
         Epic epic = getEpicById(epicId);
         if (epic == null) {
-            throw new RuntimeException("Not found Epic with id=" + epicId + " specified for subtask #" + subtaskId);
+            throw new NoSuchElementException("Not found Epic with id=" + epicId + " specified for subtask #" + subtaskId);
         }
         subtasks.put(subtaskId, subtask);
         updateEpicStatus(epic);
