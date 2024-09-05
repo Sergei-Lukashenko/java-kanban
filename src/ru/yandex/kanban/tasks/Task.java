@@ -1,19 +1,24 @@
 package ru.yandex.kanban.tasks;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Task {
+public class Task implements Comparable<Task> {
 
     protected int id;
     protected String title;
     protected String description;
-
     protected TaskStatus status;
+    protected Duration duration;
+    protected LocalDateTime startTime;
 
     public Task(String title, String description) {
         this.title = title;
         this.description = description;
-        this.status = TaskStatus.NEW;
+        status = TaskStatus.NEW;
+        duration = Duration.ofMinutes(0);
+        startTime = LocalDateTime.now();
     }
 
     public int getId() {
@@ -68,6 +73,45 @@ public class Task {
     @Override
     public String toString() {
         return "Task{" + getTaskString() + '}';
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return startTime == null ? null : startTime.plus(duration);
+    }
+
+    @Override
+    public int compareTo(Task other) {
+        if (getStartTime() != null && other.getStartTime() != null) {
+            if (getStartTime().isAfter(other.getStartTime())) {
+                return 1;
+            } else if (getStartTime().isBefore(other.getStartTime())) {
+                return -1;
+            } else {
+                return 0;
+            }
+        } else if (getStartTime() != null) {
+            return 1;
+        } else if (other.getStartTime() != null) {
+            return -1;
+        } else {
+            return getId() - other.getId();
+        }
     }
 
     String getTaskString() {
