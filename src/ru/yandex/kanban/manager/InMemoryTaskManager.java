@@ -50,7 +50,7 @@ public class InMemoryTaskManager implements TaskManager {
             throw new NoSuchElementException("Not found Epic with id=" + id);
         }
         return (ArrayList<Subtask>) epic.getSubtaskIds().stream()
-                .map(subtaskId -> subtasks.get(subtaskId))
+                .map(subtasks::get)
                 .collect(Collectors.toList());
 /*
         ArrayList<Subtask> subtaskList = new ArrayList<>();
