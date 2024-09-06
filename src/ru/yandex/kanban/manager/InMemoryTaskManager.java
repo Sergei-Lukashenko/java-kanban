@@ -18,24 +18,21 @@ public class InMemoryTaskManager implements TaskManager {
     private final HistoryManager history = Managers.getDefaultHistory();
     private int seqId;
 
-    private final Comparator<Task> comparator = new Comparator<>() {
-        @Override
-        public int compare(Task t1, Task t2) {
-            if (t1.getStartTime() != null && t2.getStartTime() != null) {
-                if (t1.getStartTime().isAfter(t2.getStartTime())) {
-                    return 1;
-                } else if (t1.getStartTime().isBefore(t2.getStartTime())) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            } else if (t1.getStartTime() != null) {
+    private final Comparator<Task> comparator = (t1, t2) -> {
+        if (t1.getStartTime() != null && t2.getStartTime() != null) {
+            if (t1.getStartTime().isAfter(t2.getStartTime())) {
                 return 1;
-            } else if (t2.getStartTime() != null) {
+            } else if (t1.getStartTime().isBefore(t2.getStartTime())) {
                 return -1;
             } else {
-                return t1.getId() - t2.getId();
+                return 0;
             }
+        } else if (t1.getStartTime() != null) {
+            return 1;
+        } else if (t2.getStartTime() != null) {
+            return -1;
+        } else {
+            return t1.getId() - t2.getId();
         }
     };
     private final TreeSet<Task> tasksByTime = new TreeSet<>(comparator);
@@ -163,9 +160,6 @@ public class InMemoryTaskManager implements TaskManager {
         }
         epics.put(epicId, epic);
         updateEpicState(epic);
-        if (tasksByTime.stream().noneMatch(t -> intersected(t, epic))) {
-            tasksByTime.add(epic);
-        }
     }
 
     @Override
