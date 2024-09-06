@@ -6,11 +6,11 @@ import ru.yandex.kanban.tasks.Epic;
 import ru.yandex.kanban.tasks.Subtask;
 import ru.yandex.kanban.tasks.Task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class TaskManagerTest {
     private static TaskManager manager;
@@ -23,6 +23,7 @@ class TaskManagerTest {
     @Test
     void shouldReturnTheSameTaskAfterAddingNewTask() {
         manager.deleteAllTasks();
+        manager.deleteAllEpics();
 
         Task task = new Task("Task title", "Task description");
         final int id = manager.addNewTask(task);
@@ -37,6 +38,7 @@ class TaskManagerTest {
 
     @Test
     void shouldReturnTheSameEpicAfterAddingNewEpic() {
+        manager.deleteAllTasks();
         manager.deleteAllEpics();
 
         Epic epic = new Epic("Epic title", "Epic description");
@@ -52,6 +54,7 @@ class TaskManagerTest {
 
     @Test
     void shouldReturnTheSameSubtaskAfterAddingNewSubtask() {
+        manager.deleteAllTasks();
         manager.deleteAllEpics();
 
         Epic epic = new Epic("Epic title", "Epic description");
@@ -69,6 +72,7 @@ class TaskManagerTest {
 
     @Test
     void shouldDeleteSubtaskFromEpicAfterDeletingSubtask() {
+        manager.deleteAllTasks();
         manager.deleteAllEpics();
 
         Epic epic = new Epic("Epic title", "Epic description");
@@ -101,6 +105,7 @@ class TaskManagerTest {
     void shouldReturnOneItemHistoryAfterAddingOneTask() {
         HistoryManager historyManager = Managers.getDefaultHistory();
         historyManager.clear();
+        manager.deleteAllTasks();
 
         Task task = new Task("Task title", "Task description");
         final int id = manager.addNewTask(task);
@@ -110,5 +115,40 @@ class TaskManagerTest {
 
         assertNotNull(history, "Manager must return history after adding 1 task.");
         assertEquals(1, history.size(), "History size must be = 1.");
+    }
+
+    @Test
+    void addedTasksArePrioritizedByTime() {
+        manager.deleteAllTasks();
+        Task laterTask = new Task("Late task title", "Late task description");
+        laterTask.setStartTime(LocalDateTime.of(2025, 1, 1, 0, 0));
+        Task earlierTask = new Task("Early task  title", "Early task  description");
+        earlierTask.setStartTime(LocalDateTime.of(2024, 9, 7, 0, 37));
+        int laterId = manager.addNewTask(laterTask);
+        int earlierId = manager.addNewTask(earlierTask);
+        List<Task> tasksByTime = manager.getPrioritizedTasks();
+        assertEquals(earlierId, tasksByTime.get(0).getId(), "ID of earlier task first" );
+        assertEquals(laterId, tasksByTime.get(1).getId(), "ID of later task first" );
+    }
+
+    @Test
+    void intersectedTaskIsRefusedOnAdding() {
+        manager.deleteAllTasks();
+        LocalDateTime initialStart = LocalDateTime.now();
+        Task task = new Task("Task title", "Task description");
+        task.setStartTime(initialStart);
+        task.setDuration(Duration.ofMinutes(100));
+        Task taskInter = new Task("Intersected task title", "Intersected task description");
+        taskInter.setStartTime(initialStart.plusMinutes(10));
+        taskInter.setDuration(Duration.ofMinutes(120));
+        int taskId = manager.addNewTask(task);
+        try {
+            manager.addNewTask(taskInter);
+        } catch (TaskTimeConflictException ignored) {
+            ;
+        }
+        List<Task> tasksByTime = manager.getPrioritizedTasks();
+        assertEquals(1, tasksByTime.size(), "Only 1st of 2 intersected tasks was added");
+        assertEquals(taskId, tasksByTime.get(0).getId(), "ID of the 1st task got" );
     }
 }

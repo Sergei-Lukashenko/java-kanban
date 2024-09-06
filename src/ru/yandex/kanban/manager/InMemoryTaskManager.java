@@ -18,7 +18,27 @@ public class InMemoryTaskManager implements TaskManager {
     private final HistoryManager history = Managers.getDefaultHistory();
     private int seqId;
 
-    private final TreeSet<Task> tasksByTime = new TreeSet<>();
+    private final Comparator<Task> comparator = new Comparator<>() {
+        @Override
+        public int compare (Task t1, Task t2) {
+            if (t1.getStartTime() != null && t2.getStartTime() != null) {
+                if (t1.getStartTime().isAfter(t2.getStartTime())) {
+                    return 1;
+                } else if (t1.getStartTime().isBefore(t2.getStartTime())) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            } else if (t1.getStartTime() != null) {
+                return 1;
+            } else if (t2.getStartTime() != null) {
+                return -1;
+            } else {
+                return t1.getId() - t2.getId();
+            }
+        }
+    };
+    private final TreeSet<Task> tasksByTime = new TreeSet<>(comparator);
 
     InMemoryTaskManager() {   // empty package-private constructor to avoid cross-package access,
     }                         // see also Managers.getDefault()
@@ -52,14 +72,6 @@ public class InMemoryTaskManager implements TaskManager {
         return (ArrayList<Subtask>) epic.getSubtaskIds().stream()
                 .map(subtasks::get)
                 .collect(Collectors.toList());
-/*
-        ArrayList<Subtask> subtaskList = new ArrayList<>();
-        for (Integer subtaskId : epic.getSubtaskIds()) {
-            Subtask subtask = subtasks.get(subtaskId);
-            subtaskList.add(subtask);
-        }
-        return subtaskList;
-*/
     }
 
     @Override
@@ -85,12 +97,14 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int addNewTask(Task task) {
+        if (tasksByTime.stream().anyMatch(t -> intersected(t, task))) {
+            throw new TaskTimeConflictException("Task period conflicts with existing tasks on adding, start = " +
+                    task.getStartTime() + ", end = " + task.getEndTime());
+        }
         final int id = ++seqId;
         task.setId(id);
         tasks.put(id, task);
-        if (tasksByTime.stream().noneMatch(t -> intersects(t, task))) {
-            tasksByTime.add(task);
-        }
+        tasksByTime.add(task);
         return id;
     }
 
@@ -100,14 +114,15 @@ public class InMemoryTaskManager implements TaskManager {
         epic.setId(id);
         epics.put(id, epic);
         updateEpicState(epic);
-        if (tasksByTime.stream().noneMatch(t -> intersects(t, epic))) {
-            tasksByTime.add(epic);
-        }
         return id;
     }
 
     @Override
     public int addNewSubtask(Subtask subtask) {
+        if (tasksByTime.stream().anyMatch(t -> intersected(t, subtask))) {
+            throw new TaskTimeConflictException("Subtask period conflicts with existing tasks on adding, start = " +
+                    subtask.getStartTime() + ", end = " + subtask.getEndTime());
+        }
         final int id = ++seqId;
         subtask.setId(id);
         final int epicId = subtask.getEpicId();
@@ -118,23 +133,25 @@ public class InMemoryTaskManager implements TaskManager {
         subtasks.put(id, subtask);
         epic.addSubtaskId(id);
         updateEpicState(epic);
-        if (tasksByTime.stream().noneMatch(t -> intersects(t, subtask))) {
-            tasksByTime.add(subtask);
-        }
         return id;
     }
 
     @Override
     public void updateTask(Task task) {
+        if (tasksByTime.stream().anyMatch(t -> intersected(t, task))) {
+            throw new TaskTimeConflictException("Task period conflicts with existing tasks on update, start = " +
+                    task.getStartTime() + ", end = " + task.getEndTime());
+        }
         final int taskId = task.getId();
         Task existingTask = getTaskById(taskId);
         if (existingTask == null) {
             throw new NoSuchElementException("Task with id=" + taskId + " not found. Cannot update " + task);
         }
         tasks.put(taskId, task);
-        if (tasksByTime.stream().noneMatch(t -> intersects(t, task))) {
-            tasksByTime.add(task);
+        if (!task.getStartTime().equals(existingTask.getStartTime())) {
+            tasksByTime.remove(task);   // to place task to the correct node in the tree set
         }
+        tasksByTime.add(task);
     }
 
     @Override
@@ -146,13 +163,17 @@ public class InMemoryTaskManager implements TaskManager {
         }
         epics.put(epicId, epic);
         updateEpicState(epic);
-        if (tasksByTime.stream().noneMatch(t -> intersects(t, epic))) {
+        if (tasksByTime.stream().noneMatch(t -> intersected(t, epic))) {
             tasksByTime.add(epic);
         }
     }
 
     @Override
     public void updateSubtask(Subtask subtask) {
+        if (tasksByTime.stream().anyMatch(t -> intersected(t, subtask))) {
+            throw new TaskTimeConflictException("Subtask period conflicts with existing tasks on update, start = " +
+                    subtask.getStartTime() + ", end = " + subtask.getEndTime());
+        }
         final int subtaskId = subtask.getId();
         Subtask existingSubtask = getSubtaskById(subtaskId);
         if (existingSubtask == null) {
@@ -165,9 +186,10 @@ public class InMemoryTaskManager implements TaskManager {
         }
         subtasks.put(subtaskId, subtask);
         updateEpicState(epic);
-        if (tasksByTime.stream().noneMatch(t -> intersects(t, subtask))) {
-            tasksByTime.add(subtask);
+        if (!subtask.getStartTime().equals(existingSubtask.getStartTime())) {
+            tasksByTime.remove(subtask);   // to place subtask to the correct node in the tree set
         }
+        tasksByTime.add(subtask);
     }
 
     @Override
@@ -183,7 +205,6 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         Epic epic = getEpicById(id);
-        tasksByTime.remove(epics.get(id));
         epics.remove(id);
         history.remove(id);
         if (epic != null) {
@@ -219,9 +240,6 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteAllEpics() {
-        for (Epic epic : epics.values()) {
-            tasksByTime.remove(epic);
-        }
         epics.clear();
         subtasks.clear();
     }
@@ -237,11 +255,12 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
+    @Override
     public List<Task> getPrioritizedTasks() {
         return new ArrayList<>(tasksByTime);
     }
 
-    public boolean intersects(Task task1, Task task2) {
+    private boolean intersected(Task task1, Task task2) {
         LocalDateTime start1 = task1.getStartTime();
         LocalDateTime start2 = task2.getStartTime();
         if (start1 == null || start2 == null) {
