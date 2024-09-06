@@ -20,7 +20,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     private final Comparator<Task> comparator = new Comparator<>() {
         @Override
-        public int compare (Task t1, Task t2) {
+        public int compare(Task t1, Task t2) {
             if (t1.getStartTime() != null && t2.getStartTime() != null) {
                 if (t1.getStartTime().isAfter(t2.getStartTime())) {
                     return 1;
