@@ -18,23 +18,7 @@ public class InMemoryTaskManager implements TaskManager {
     private final HistoryManager history = Managers.getDefaultHistory();
     private int seqId;
 
-    private final Comparator<Task> comparator = (t1, t2) -> {
-        if (t1.getStartTime() != null && t2.getStartTime() != null) {
-            if (t1.getStartTime().isAfter(t2.getStartTime())) {
-                return 1;
-            } else if (t1.getStartTime().isBefore(t2.getStartTime())) {
-                return -1;
-            } else {
-                return 0;
-            }
-        } else if (t1.getStartTime() != null) {
-            return 1;
-        } else if (t2.getStartTime() != null) {
-            return -1;
-        } else {
-            return t1.getId() - t2.getId();
-        }
-    };
+    private final Comparator<Task> comparator = Comparator.comparing(Task::getStartTime).thenComparing(Task::getId);
     private final TreeSet<Task> tasksByTime = new TreeSet<>(comparator);
 
     InMemoryTaskManager() {   // empty package-private constructor to avoid cross-package access,
