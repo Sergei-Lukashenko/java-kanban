@@ -89,7 +89,7 @@ public class Main {
         System.out.println("Epics:");
         for (Epic e : manager.getEpics()) {
             System.out.println("\t" + e);
-            for (Task st : manager.getEpicSubtasks(e.getId())) {
+            for (Subtask st : manager.getEpicSubtasks(e.getId())) {
                 System.out.println("\t--> " + st);
             }
         }

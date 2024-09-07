@@ -8,7 +8,6 @@ import ru.yandex.kanban.tasks.TaskStatus;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Task> tasks = new HashMap<>();
@@ -45,14 +44,14 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<Subtask> getEpicSubtasks(int id) {
+    public List<Subtask> getEpicSubtasks(int id) {
         Epic epic = getEpicById(id);
         if (epic == null) {
             throw new NoSuchElementException("Not found Epic with id=" + id);
         }
-        return (ArrayList<Subtask>) epic.getSubtaskIds().stream()
+        return  epic.getSubtaskIds().stream()
                 .map(subtasks::get)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
