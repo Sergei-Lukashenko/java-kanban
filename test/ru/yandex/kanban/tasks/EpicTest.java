@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import ru.yandex.kanban.manager.Managers;
 import ru.yandex.kanban.manager.TaskManager;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 class EpicTest {
@@ -43,9 +44,13 @@ class EpicTest {
 
     @Test
     public void similarEpicsWithTheSameIdShouldBeEqual() {
+        LocalDateTime sameMoment = LocalDateTime.now();
         Epic epic1 = new Epic("Epic title", "Epic description");
+        epic1.setStartTime(sameMoment);
         final int id1 = manager.addNewEpic(epic1);
         Epic epic2 = new Epic("Epic title", "Epic description");
+        manager.addNewEpic(epic2);
+        epic2.setStartTime(sameMoment);
         epic2.setId(id1);
         assertEquals(epic1, epic2);
     }

@@ -21,9 +21,10 @@ public class InMemoryTaskManager implements TaskManager {
     private final HistoryManager history = Managers.getDefaultHistory();
     private int seqId;
 
-    private final Comparator<Task> comparator = comparing(Task::getStartTime, nullsFirst(naturalOrder()))
+    static private final Comparator<Task> BY_TIME = comparing(Task::getStartTime,
+            nullsFirst(naturalOrder()))
             .thenComparing(Task::getId);
-    private final TreeSet<Task> tasksByTime = new TreeSet<>(comparator);
+    private final TreeSet<Task> tasksByTime = new TreeSet<>(BY_TIME);
 
     InMemoryTaskManager() {   // empty package-private constructor to avoid cross-package access,
     }                         // see also Managers.getDefault()
@@ -83,8 +84,8 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public int addNewTask(Task task) {
         if (tasksByTime.stream().anyMatch(t -> overlapped(t, task))) {
-            throw new TaskOverlapException("Task period conflicts with existing tasks on adding, start = " +
-                    task.getStartTime() + ", end = " + task.getEndTime());
+            throw new TaskOverlapException(String.format("Task '%s' period conflicts with existing tasks on adding, " +
+                    "start = %s , end = %s", task.getTitle(), task.getStartTime(), task.getEndTime()));
         }
         final int id = ++seqId;
         task.setId(id);
@@ -105,8 +106,8 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public int addNewSubtask(Subtask subtask) {
         if (tasksByTime.stream().anyMatch(t -> overlapped(t, subtask))) {
-            throw new TaskOverlapException("Subtask period conflicts with existing tasks on adding, start = " +
-                    subtask.getStartTime() + ", end = " + subtask.getEndTime());
+            throw new TaskOverlapException(String.format("Subtask '%s' period conflicts with existing tasks on adding, " +
+                    "start = %s , end = %s", subtask.getTitle(), subtask.getStartTime(), subtask.getEndTime()));
         }
         final int id = ++seqId;
         subtask.setId(id);
@@ -124,20 +125,21 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task) {
-        if (tasksByTime.stream().anyMatch(t -> overlapped(t, task))) {
-            throw new TaskOverlapException("Task period conflicts with existing tasks on update, start = " +
-                    task.getStartTime() + ", end = " + task.getEndTime());
-        }
         final int taskId = task.getId();
+        if (tasksByTime.stream().anyMatch(t -> overlapped(t, task))) {
+            throw new TaskOverlapException(String.format("Task %d period conflicts with existing tasks on update, " +
+                    "start = %s , end = %s", taskId, task.getStartTime(), task.getEndTime()));
+        }
         Task existingTask = getTaskById(taskId);
         if (existingTask == null) {
             throw new NoSuchElementException("Task with id=" + taskId + " not found. Cannot update " + task);
         }
-        tasks.put(taskId, task);
-        if (!task.getStartTime().equals(existingTask.getStartTime())) {
-            tasksByTime.remove(task);   // to place task to the correct node in the tree set
+        if (!task.equals(existingTask)) {
+            tasks.put(taskId, task);
+            // remove-add to place task to the correct node in the tree set
+            tasksByTime.remove(task);
+            tasksByTime.add(task);
         }
-        tasksByTime.add(task);
     }
 
     @Override
@@ -153,11 +155,11 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateSubtask(Subtask subtask) {
-        if (tasksByTime.stream().anyMatch(t -> overlapped(t, subtask))) {
-            throw new TaskOverlapException("Subtask period conflicts with existing tasks on update, start = " +
-                    subtask.getStartTime() + ", end = " + subtask.getEndTime());
-        }
         final int subtaskId = subtask.getId();
+        if (tasksByTime.stream().anyMatch(t -> overlapped(t, subtask))) {
+            throw new TaskOverlapException(String.format("Subtask %d period conflicts with existing tasks on update, " +
+                    "start = %s , end = %s", subtaskId, subtask.getStartTime(), subtask.getEndTime()));
+        }
         Subtask existingSubtask = getSubtaskById(subtaskId);
         if (existingSubtask == null) {
             throw new NoSuchElementException("Subtask with id=" + subtaskId + " not found. Cannot update " + subtask);
@@ -167,12 +169,13 @@ public class InMemoryTaskManager implements TaskManager {
         if (epic == null) {
             throw new NoSuchElementException("Not found Epic with id=" + epicId + " specified for subtask #" + subtaskId);
         }
-        subtasks.put(subtaskId, subtask);
-        updateEpicState(epic);
-        if (!subtask.getStartTime().equals(existingSubtask.getStartTime())) {
-            tasksByTime.remove(subtask);   // to place subtask to the correct node in the tree set
+        if (!subtask.equals(existingSubtask)) {
+            subtasks.put(subtaskId, subtask);
+            // remove-add to place subtask to the correct node in the tree set
+            tasksByTime.remove(subtask);
+            tasksByTime.add(subtask);
+            updateEpicState(epic);
         }
-        tasksByTime.add(subtask);
     }
 
     @Override

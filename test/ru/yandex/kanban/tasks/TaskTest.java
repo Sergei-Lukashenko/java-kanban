@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.kanban.manager.Managers;
 import ru.yandex.kanban.manager.TaskManager;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TaskTest {
@@ -18,10 +20,14 @@ class TaskTest {
 
     @Test
     public void similarTasksWithTheSameIdShouldBeEqual () {
+        LocalDateTime sameMoment = LocalDateTime.now();
         Task task1 = new Task("Task title", "Task description");
+        task1.setStartTime(sameMoment);
         final int id1 = manager.addNewTask(task1);
         Task task2 = new Task("Task title", "Task description");
+        manager.addNewTask(task2);
         task2.setId(id1);
+        task2.setStartTime(sameMoment);
         assertEquals(task1, task2);
     }
 
