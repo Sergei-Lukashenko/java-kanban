@@ -81,10 +81,13 @@ class TaskManagerTest {
         Subtask subtask1 = new Subtask("Subtask #1", "Subtask1 description", epicId);
         Subtask subtask2 = new Subtask("Subtask #2", "Subtask2 description", epicId);
 
+        manager.addNewSubtask(subtask1);
+        manager.addNewSubtask(subtask2);
+
         final int subtask1Id = subtask1.getId();
         final int subtask2Id = subtask2.getId();
 
-        epic.removeSubtaskId(subtask2Id);
+        manager.deleteSubtask(subtask2Id);
         for (int subtaskId : epic.getSubtaskIds()) {
             assertEquals(subtask1Id, subtaskId, "Only subtask1 is kept in Epic");
         }
@@ -144,11 +147,38 @@ class TaskManagerTest {
         int taskId = manager.addNewTask(task);
         try {
             manager.addNewTask(taskInter);
-        } catch (TaskTimeConflictException ignored) {
-            ;
+        } catch (TaskOverlapException ignored) {
         }
         List<Task> tasksByTime = manager.getPrioritizedTasks();
         assertEquals(1, tasksByTime.size(), "Only 1st of 2 intersected tasks was added");
-        assertEquals(taskId, tasksByTime.get(0).getId(), "ID of the 1st task got" );
+        assertEquals(taskId, tasksByTime.getFirst().getId(), "ID of the 1st task got" );
+    }
+
+    @Test
+    void shouldReturnEpicSubtasksInTheSameOrderButSubtasksByTimeFromEarlierToLater() {
+        manager.deleteAllTasks();
+        manager.deleteAllEpics();
+
+        Epic epic = new Epic("Epic title", "Epic description");
+        final int epicId = manager.addNewEpic(epic);
+
+        Subtask subtask1 = new Subtask("Later subtask #1", "Later subtask1 description", epicId);
+        subtask1.setStartTime(LocalDateTime.now().plusDays(1));
+        subtask1.setDuration(Duration.ofDays(2));
+        Subtask subtask2 = new Subtask("Earlier subtask #2", "Earlier subtask2 description", epicId);
+        subtask2.setStartTime(LocalDateTime.now());
+        subtask2.setDuration(Duration.ofMinutes(180));
+
+        manager.addNewSubtask(subtask1);
+        manager.addNewSubtask(subtask2);
+
+        List<Subtask> subtasks = manager.getEpicSubtasks(epicId);
+        assertEquals(2, subtasks.size(), "2 subtasks are in the epic");
+        assertEquals(subtask1, subtasks.get(0), "1st added subtask is in place");
+        assertEquals(subtask2, subtasks.get(1), "2nd added subtask is in place");
+
+        List<Task> tasksByTime = manager.getPrioritizedTasks();
+        assertEquals(subtask2, tasksByTime.get(0), "Earlier subtask is the first in tasksByTime");
+        assertEquals(subtask1, tasksByTime.get(1), "Later subtask is the second in tasksByTime");
     }
 }

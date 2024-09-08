@@ -110,7 +110,7 @@ public class Task implements Comparable<Task> {
         } else if (other.getStartTime() != null) {
             return -1;
         } else {
-            return getId() - other.getId();
+            return Integer.compare(getId(), other.getId());
         }
     }
 
