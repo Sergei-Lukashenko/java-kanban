@@ -2,6 +2,7 @@ package ru.yandex.kanban.tasks;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class Task implements Comparable<Task> {
@@ -67,7 +68,7 @@ public class Task implements Comparable<Task> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, description, status);
+        return Objects.hash(id, title, description, status, startTime, duration);
     }
 
     @Override
@@ -122,6 +123,12 @@ public class Task implements Comparable<Task> {
             result += ", description is empty";
         } else {
             result += ", description length=" + description.length();
+        }
+        if (startTime != null) {
+            result += ", startTime = " + startTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm:ss:SSS"));
+        }
+        if (duration != null) {
+            result += ", duration = " + duration;
         }
         return result;
     }
