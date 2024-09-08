@@ -125,10 +125,10 @@ public class Task implements Comparable<Task> {
             result += ", description length=" + description.length();
         }
         if (startTime != null) {
-            result += ", startTime = " + startTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm:ss:SSS"));
+            result += ", startTime=" + startTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm:ss:SSS"));
         }
         if (duration != null) {
-            result += ", duration = " + duration;
+            result += ", duration=" + duration;
         }
         return result;
     }
