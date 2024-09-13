@@ -22,6 +22,15 @@ public class Task implements Comparable<Task> {
         startTime = LocalDateTime.now();
     }
 
+    public Task(Task task) {
+        id = task.id;
+        title = task.title;
+        description = task.description;
+        status = task.status;
+        duration = task.duration;
+        startTime = task.startTime;
+    }
+
     public int getId() {
         return id;
     }
