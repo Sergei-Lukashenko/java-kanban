@@ -13,12 +13,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class HistoryManagerTest {
 
-    private static TaskManager manager;
     private static HistoryManager historyManager;
+
+    Task task = new Task("Task title", "Task description");
 
     @BeforeAll
     public static void beforeAll() {
-        manager = Managers.getDefault();
         historyManager = Managers.getDefaultHistory();
     }
 
@@ -27,41 +27,38 @@ class HistoryManagerTest {
 
     @Test
     void shouldReturnEmptyHistoryListWhenNoTasks() {
-        final List<Task> history = historyManager.getHistory();
-        assertNotNull(history, "History is not null.");
-        assertTrue(history.isEmpty(), "History must be empty.");
+        final List<Task> expectedHistory = historyManager.getHistory();
+        assertNotNull(expectedHistory, "History is null.");
+        assertTrue(expectedHistory.isEmpty(), "History must be empty.");
     }
 
     @Test
     void shouldKeepHistoryAfterAddingAnItem() {
-        Task task = new Task("Task title", "Task description");
         historyManager.add(task);
-        final List<Task> history = historyManager.getHistory();
-        assertNotNull(history, "History is not null after adding one task.");
-        assertEquals(1, history.size(), "History is not empty.");
+        final List<Task> expectedHistory = historyManager.getHistory();
+        assertNotNull(expectedHistory, "History is null after adding one task.");
+        assertEquals(1, expectedHistory.size(), "History length != 1 while 1 task expected there.");
     }
 
     @Test
     void shouldKeepTheSingleTaskAfterRepetitiveAddition() {
-        Task task = new Task("Task title", "Task description");
         historyManager.add(task);
         historyManager.add(task);
-        final List<Task> history = historyManager.getHistory();
-        Task taskFromHist = history.getFirst();
-        assertEquals(task, taskFromHist, "History will keep the single task after repetitive addition.");
-        assertEquals(1, history.size(), "History length after repetitive addition must be = 1.");
+        final List<Task> expectedHistory = historyManager.getHistory();
+        Task expectedTaskFromHist = expectedHistory.getFirst();
+        assertEquals(task, expectedTaskFromHist, "History must keep the single added task after repetitive addition.");
+        assertEquals(1, expectedHistory.size(), "History length after repetitive addition must be = 1.");
     }
 
     @Test
     void shouldRemoveTheTaskCorrectly() {
-        Task task = new Task("Task title", "Task description");
         historyManager.add(task);
         List<Task> history = historyManager.getHistory();
         Task taskFromHist = history.getFirst();
         historyManager.remove(taskFromHist.getId());
-        history = historyManager.getHistory();
-        assertNotNull(history, "History is not null after deleting a single added task.");
-        assertEquals(0, history.size(), "History length after addition/removal must be = 0.");
+        List<Task> expectedHistory = historyManager.getHistory();
+        assertNotNull(expectedHistory, "History is  null after deleting a single added task.");
+        assertEquals(0, expectedHistory.size(), "History length after addition/removal must be = 0.");
     }
 
 }

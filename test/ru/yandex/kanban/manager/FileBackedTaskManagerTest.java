@@ -31,9 +31,9 @@ public class FileBackedTaskManagerTest {
 
         FileBackedTaskManager newManager = FileBackedTaskManager.loadFromFile(file);
 
-        assertTrue(newManager.getTasks().isEmpty(), "Task list is empty");
-        assertTrue(newManager.getEpics().isEmpty(), "Epic list is empty");
-        assertTrue(newManager.getSubtasks().isEmpty(), "Subtask list is empty");
+        assertTrue(newManager.getTasks().isEmpty(), "Task list must be empty");
+        assertTrue(newManager.getEpics().isEmpty(), "Epic list must be empty");
+        assertTrue(newManager.getSubtasks().isEmpty(), "Subtask list must be empty");
     }
 
     @Test
@@ -48,8 +48,8 @@ public class FileBackedTaskManagerTest {
         Task fileTask1 = newManager.getTaskById(taskId1);
         Task fileTask2 = newManager.getTaskById(taskId2);
 
-        assertEquals(task1, fileTask1, "Task #1 restored from file correctly" );
-        assertEquals(task2, fileTask2, "Task #2 restored from file correctly");
+        assertEquals(task1, fileTask1, "Task #1 restored from file incorrectly" );
+        assertEquals(task2, fileTask2, "Task #2 restored from file incorrectly");
     }
 
     @Test
@@ -64,8 +64,8 @@ public class FileBackedTaskManagerTest {
         Epic fileEpic = newManager.getEpicById(epicId);
         Subtask fileSubtask = newManager.getSubtaskById(subtaskId);
 
-        assertEquals(epicId, fileEpic.getId(),"Epic ID restored from file correctly");
-        assertEquals(subtaskId, fileSubtask.getId(),"Subtask ID restored from file correctly");
-        assertEquals(epicId, fileSubtask.getEpicId(),"Epic ID for subtask restored from file correctly");
+        assertEquals(epicId, fileEpic.getId(),"Epic ID restored from file incorrectly");
+        assertEquals(subtaskId, fileSubtask.getId(),"Subtask ID restored from file incorrectly");
+        assertEquals(epicId, fileSubtask.getEpicId(),"Epic ID for subtask restored from file incorrectly");
     }
 }
