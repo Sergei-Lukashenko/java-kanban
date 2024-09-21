@@ -33,7 +33,7 @@ public class HttpTaskServer extends BaseHttpHandler {
         this(Managers.getDefault());
     }
 
-    public HttpTaskServer(TaskManager taskManager ) throws IOException {
+    public HttpTaskServer(TaskManager taskManager) throws IOException {
         this.taskManager = taskManager;
         gson = Managers.getGson();
         server = HttpServer.create(new InetSocketAddress(PORT), 0);
@@ -102,7 +102,7 @@ public class HttpTaskServer extends BaseHttpHandler {
     }
 
     private void handleGetTasks(HttpExchange exchange) throws IOException {
-        String response = gson.toJson(switch (taskType) {
+        String response = gson.toJson( switch (taskType) {
             case TASK -> taskManager.getTasks();
             case SUBTASK -> taskManager.getSubtasks();
             case EPIC -> taskManager.getEpics();
@@ -299,8 +299,10 @@ public class HttpTaskServer extends BaseHttpHandler {
         }
     }
 
-    enum Endpoint {GET_TASKS, GET_TASK_BY_ID, POST_TASK, DELETE_TASK,
+    enum Endpoint {
+        GET_TASKS, GET_TASK_BY_ID, POST_TASK, DELETE_TASK,
         GET_SUBTASKS, GET_SUBTASK_BY_ID, POST_SUBTASK, DELETE_SUBTASK,
         GET_EPICS, GET_EPIC_BY_ID, GET_EPIC_SUBTASKS, POST_EPIC, DELETE_EPIC,
-        GET_HISTORY, GET_PRIORITIZED, UNKNOWN}
+        GET_HISTORY, GET_PRIORITIZED, UNKNOWN
+    }
 }
