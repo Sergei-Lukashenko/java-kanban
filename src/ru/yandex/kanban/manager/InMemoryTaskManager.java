@@ -21,7 +21,7 @@ public class InMemoryTaskManager implements TaskManager {
     private final HistoryManager history = Managers.getDefaultHistory();
     private int seqId;
 
-    static private final Comparator<Task> BY_TIME = comparing(Task::getStartTime,
+    private static final Comparator<Task> BY_TIME = comparing(Task::getStartTime,
             nullsFirst(naturalOrder()))
             .thenComparing(Task::getId);
     private final TreeSet<Task> tasksByTime = new TreeSet<>(BY_TIME);
