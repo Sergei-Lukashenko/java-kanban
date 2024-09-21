@@ -13,6 +13,12 @@ public class Epic extends Task {
         endTime = startTime;
     }
 
+    public Epic(Epic epic) {
+        super(epic);
+        endTime = epic.endTime;
+        subtaskIds = new ArrayList<>(epic.subtaskIds);
+    }
+
     @Override
     public boolean isEpic() {
         return true;

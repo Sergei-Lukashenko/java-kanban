@@ -31,11 +31,10 @@ class InMemoryHistoryManager implements HistoryManager {
     @Override
     public void remove(int id) {
         Node node = nodeStorage.get(id);
-        if (node == null) {
-            throw new RuntimeException("Node for removing not found for Task id=" + id);
+        if (node != null) {
+            history.removeNode(node);
+            nodeStorage.remove(id);
         }
-        history.removeNode(node);
-        nodeStorage.remove(id);
     }
 
     @Override

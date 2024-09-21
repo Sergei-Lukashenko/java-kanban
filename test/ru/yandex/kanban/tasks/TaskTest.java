@@ -23,10 +23,10 @@ class TaskTest {
         LocalDateTime sameMoment = LocalDateTime.now();
         Task task1 = new Task("Task title", "Task description");
         task1.setStartTime(sameMoment);
-        final int id1 = manager.addNewTask(task1);
-        Task task2 = new Task("Task title", "Task description");
+        final int sameId = manager.addNewTask(task1);
+        Task task2 = new Task(task1);
         manager.addNewTask(task2);
-        task2.setId(id1);
+        task2.setId(sameId);
         task2.setStartTime(sameMoment);
         assertEquals(task1, task2);
     }

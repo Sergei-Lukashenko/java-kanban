@@ -3,6 +3,7 @@ package ru.yandex.kanban.tasks;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import java.util.Objects;
 
 public class Task implements Comparable<Task> {
@@ -73,7 +74,8 @@ public class Task implements Comparable<Task> {
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
         return id == task.id && Objects.equals(title, task.title) && Objects.equals(description, task.description)
-                && status == task.status && Objects.equals(startTime, task.startTime) && Objects.equals(duration, task.duration);
+                && status == task.status && Objects.equals(duration, task.duration)
+                && Objects.equals(startTime.truncatedTo(SECONDS), task.startTime.truncatedTo(SECONDS));
     }
 
     @Override
@@ -135,7 +137,7 @@ public class Task implements Comparable<Task> {
             result += ", description length=" + description.length();
         }
         if (startTime != null) {
-            result += ", startTime=" + startTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm:ss:SSS"));
+            result += ", startTime=" + startTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
         }
         if (duration != null) {
             result += ", duration=" + duration;

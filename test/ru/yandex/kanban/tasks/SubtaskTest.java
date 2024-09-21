@@ -1,11 +1,10 @@
 package ru.yandex.kanban.tasks;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.kanban.manager.Managers;
 import ru.yandex.kanban.manager.TaskManager;
-
-import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -18,17 +17,20 @@ class SubtaskTest {
         manager = Managers.getDefault();
     }
 
+    @BeforeEach
+    void init() {
+        manager.deleteAllTasks();
+        manager.deleteAllSubtasks();
+    }
+
     @Test
-    public void similarSubtasksWithTheSameIdShouldBeEqual () {
-        LocalDateTime sameMoment = LocalDateTime.now();
+    public void similarSubtasksWithTheSameIdShouldBeEqual() {
         Epic epic = new Epic("Epic title", "Epic description");
         final int id = manager.addNewEpic(epic);
         Subtask subtask1 = new Subtask("Subtask similar title", "Subtask similar description", id);
-        subtask1.setStartTime(sameMoment);
         manager.addNewSubtask(subtask1);
         int sameId = subtask1.getId();
-        Subtask subtask2 = new Subtask("Subtask similar title", "Subtask similar description", id);
-        subtask2.setStartTime(sameMoment);
+        Subtask subtask2 = new Subtask(subtask1);
         manager.addNewSubtask(subtask2);
         subtask2.setId(sameId);
         assertEquals(subtask1, subtask2);
