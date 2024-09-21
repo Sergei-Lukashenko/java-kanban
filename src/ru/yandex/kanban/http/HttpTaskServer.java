@@ -102,12 +102,19 @@ public class HttpTaskServer extends BaseHttpHandler {
     }
 
     private void handleGetTasks(HttpExchange exchange) throws IOException {
-        String response = gson.toJson( switch (taskType) {
-            case TASK -> taskManager.getTasks();
-            case SUBTASK -> taskManager.getSubtasks();
-            case EPIC -> taskManager.getEpics();
-        });
-        if (response.equals("null")) {
+        String response = "";
+        switch (taskType) {
+            case TASK:
+                response = gson.toJson(taskManager.getTasks());
+                break;
+            case SUBTASK:
+                response = gson.toJson(taskManager.getSubtasks());
+                break;
+            case EPIC:
+                response = gson.toJson(taskManager.getEpics());
+                break;
+        }
+        if (response.isEmpty() || response.equals("null")) {
             sendHttpStatus(exchange, 404);  // Not Found
         } else {
             sendText(exchange, response);  // OK
