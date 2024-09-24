@@ -27,8 +27,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 bufWriter.write(CSVFormat.toString(subtask));
             }
         } catch (IOException exception) {
-            //noinspection CallToPrintStackTrace
-            exception.printStackTrace();
+            System.out.println(exception);
             String shortMess = exception.getMessage();
             throw new ManagerSaveException(String.format("CSV file %s writing error", file.getName())
                     + (shortMess != null ? ": " + shortMess : ""),
@@ -49,8 +48,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         try {
             fileValue = Files.readString(file.toPath(), StandardCharsets.UTF_8);
         } catch (IOException exception) {
-            //noinspection CallToPrintStackTrace
-            exception.printStackTrace();
+            System.out.println(exception);
             return manager;
         }
         String[] fileLines = fileValue.split(System.lineSeparator());

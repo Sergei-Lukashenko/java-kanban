@@ -21,7 +21,7 @@ public class InMemoryTaskManager implements TaskManager {
     private final HistoryManager history = Managers.getDefaultHistory();
     private int seqId;
 
-    static private final Comparator<Task> BY_TIME = comparing(Task::getStartTime,
+    private static final Comparator<Task> BY_TIME = comparing(Task::getStartTime,
             nullsFirst(naturalOrder()))
             .thenComparing(Task::getId);
     private final TreeSet<Task> tasksByTime = new TreeSet<>(BY_TIME);
@@ -53,39 +53,47 @@ public class InMemoryTaskManager implements TaskManager {
     public List<Subtask> getEpicSubtasks(int id) {
         Epic epic = getEpicById(id);
         if (epic == null) {
-            throw new NoSuchElementException("Not found Epic with id=" + id);
+            throw new NoSuchElementException("Not found Epic with ID=" + id);
         }
-        return  epic.getSubtaskIds().stream()
+        return epic.getSubtaskIds().stream()
                 .map(subtasks::get)
                 .toList();
     }
 
     @Override
     public Task getTaskById(int id) {
-        Task task = tasks.getOrDefault(id, null);
-        history.add(task);
+        Task task = tasks.get(id);
+        if (task != null) {
+            history.add(task);
+        }
         return task;
     }
 
     @Override
     public Epic getEpicById(int id) {
-        Epic epic = epics.getOrDefault(id, null);
-        history.add(epic);
+        Epic epic = epics.get(id);
+        if (epic != null) {
+            history.add(epic);
+        }
         return epic;
     }
 
     @Override
     public Subtask getSubtaskById(int id) {
-        Subtask subtask = subtasks.getOrDefault(id, null);
-        history.add(subtask);
+        Subtask subtask = subtasks.get(id);
+        if (subtask != null) {
+            history.add(subtask);
+        }
         return subtask;
     }
 
     @Override
     public int addNewTask(Task task) {
         if (tasksByTime.stream().anyMatch(t -> overlapped(t, task))) {
-            throw new TaskOverlapException(String.format("Task '%s' period conflicts with existing tasks on adding, " +
-                    "start = %s , end = %s", task.getTitle(), task.getStartTime(), task.getEndTime()));
+            throw new TaskOverlapException(
+                    String.format("Task '%s' period conflicts with existing tasks on adding, start=%s, end=%s",
+                            task.getTitle(), task.getStartTime().toString(), task.getEndTime().toString())
+            );
         }
         final int id = ++seqId;
         task.setId(id);
@@ -106,15 +114,17 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public int addNewSubtask(Subtask subtask) {
         if (tasksByTime.stream().anyMatch(t -> overlapped(t, subtask))) {
-            throw new TaskOverlapException(String.format("Subtask '%s' period conflicts with existing tasks on adding, " +
-                    "start = %s , end = %s", subtask.getTitle(), subtask.getStartTime(), subtask.getEndTime()));
+            throw new TaskOverlapException(
+                    String.format("Subtask '%s' period conflicts with existing tasks on adding, start=%s, end=%s",
+                            subtask.getTitle(), subtask.getStartTime().toString(), subtask.getEndTime().toString())
+            );
         }
         final int id = ++seqId;
         subtask.setId(id);
         final int epicId = subtask.getEpicId();
         Epic epic = getEpicById(epicId);
         if (epic == null) {
-            throw new NoSuchElementException("Not found Epic with id=" + epicId + " specified for subtask #" + id);
+            throw new NoSuchElementException("Not found Epic with ID=" + epicId + " specified for subtask #" + id);
         }
         subtasks.put(id, subtask);
         epic.addSubtaskId(id);
@@ -127,12 +137,14 @@ public class InMemoryTaskManager implements TaskManager {
     public void updateTask(Task task) {
         final int taskId = task.getId();
         if (tasksByTime.stream().anyMatch(t -> overlapped(t, task))) {
-            throw new TaskOverlapException(String.format("Task %d period conflicts with existing tasks on update, " +
-                    "start = %s , end = %s", taskId, task.getStartTime(), task.getEndTime()));
+            throw new TaskOverlapException(
+                    String.format("Task #%d period conflicts with existing tasks on update, start=%s, end=%s",
+                            taskId, task.getStartTime().toString(), task.getEndTime().toString())
+            );
         }
         Task existingTask = getTaskById(taskId);
         if (existingTask == null) {
-            throw new NoSuchElementException("Task with id=" + taskId + " not found. Cannot update " + task);
+            throw new NoSuchElementException("Task with ID=" + taskId + " not found. Cannot update " + task);
         }
         if (!task.equals(existingTask)) {
             tasks.put(taskId, task);
@@ -147,7 +159,7 @@ public class InMemoryTaskManager implements TaskManager {
         final int epicId = epic.getId();
         Epic existingEpic = getEpicById(epicId);
         if (existingEpic == null) {
-            throw new NoSuchElementException("Epic with id=" + epicId + " not found. Cannot update " + epic);
+            throw new NoSuchElementException("Epic with ID=" + epicId + " not found. Cannot update " + epic);
         }
         epics.put(epicId, epic);
         updateEpicState(epic);
@@ -157,17 +169,19 @@ public class InMemoryTaskManager implements TaskManager {
     public void updateSubtask(Subtask subtask) {
         final int subtaskId = subtask.getId();
         if (tasksByTime.stream().anyMatch(t -> overlapped(t, subtask))) {
-            throw new TaskOverlapException(String.format("Subtask %d period conflicts with existing tasks on update, " +
-                    "start = %s , end = %s", subtaskId, subtask.getStartTime(), subtask.getEndTime()));
+            throw new TaskOverlapException(
+                    String.format("Subtask #%d period conflicts with existing tasks on update, start=%s, end=%s",
+                            subtaskId, subtask.getStartTime().toString(), subtask.getEndTime().toString())
+            );
         }
         Subtask existingSubtask = getSubtaskById(subtaskId);
         if (existingSubtask == null) {
-            throw new NoSuchElementException("Subtask with id=" + subtaskId + " not found. Cannot update " + subtask);
+            throw new NoSuchElementException("Subtask with ID=" + subtaskId + " not found. Cannot update " + subtask);
         }
         final int epicId = subtask.getEpicId();
         Epic epic = getEpicById(epicId);
         if (epic == null) {
-            throw new NoSuchElementException("Not found Epic with id=" + epicId + " specified for subtask #" + subtaskId);
+            throw new NoSuchElementException("Not found Epic with ID=" + epicId + " specified for subtask #" + subtaskId);
         }
         if (!subtask.equals(existingSubtask)) {
             subtasks.put(subtaskId, subtask);

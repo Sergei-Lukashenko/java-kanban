@@ -1,3 +1,4 @@
+import ru.yandex.kanban.http.HttpTaskServer;
 import ru.yandex.kanban.manager.TaskManager;
 import ru.yandex.kanban.manager.Managers;
 import ru.yandex.kanban.tasks.Task;
@@ -5,6 +6,7 @@ import ru.yandex.kanban.tasks.Epic;
 import ru.yandex.kanban.tasks.Subtask;
 import ru.yandex.kanban.tasks.TaskStatus;
 
+import java.io.IOException;
 import java.util.List;
 
 public class Main {
@@ -79,6 +81,12 @@ public class Main {
         System.out.println("Удалили task2 и subtask3");
         printAllTasks(manager);
 
+        try {
+            HttpTaskServer taskServer = new HttpTaskServer();
+            taskServer.start();
+        } catch (IOException exception) {
+            System.out.println(exception);
+        }
     }
 
     static void printAllTasks(TaskManager manager) {

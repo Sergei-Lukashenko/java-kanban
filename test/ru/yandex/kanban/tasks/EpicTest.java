@@ -1,6 +1,7 @@
 package ru.yandex.kanban.tasks;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -18,6 +19,12 @@ class EpicTest {
     @BeforeAll
     public static void beforeAll() {
         manager = Managers.getDefault();
+    }
+
+    @BeforeEach
+    void init() {
+        manager.deleteAllTasks();
+        manager.deleteAllSubtasks();
     }
 
     @Test
@@ -47,11 +54,11 @@ class EpicTest {
         LocalDateTime sameMoment = LocalDateTime.now();
         Epic epic1 = new Epic("Epic title", "Epic description");
         epic1.setStartTime(sameMoment);
-        final int id1 = manager.addNewEpic(epic1);
-        Epic epic2 = new Epic("Epic title", "Epic description");
+        final int sameId = manager.addNewEpic(epic1);
+        Epic epic2 = new Epic(epic1);
         manager.addNewEpic(epic2);
         epic2.setStartTime(sameMoment);
-        epic2.setId(id1);
+        epic2.setId(sameId);
         assertEquals(epic1, epic2);
     }
 

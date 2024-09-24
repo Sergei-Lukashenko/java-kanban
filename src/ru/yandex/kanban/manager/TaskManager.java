@@ -48,5 +48,5 @@ public interface TaskManager {
 
     void deleteAllSubtasks();
 
-    public List<Task> getPrioritizedTasks();
+    List<Task> getPrioritizedTasks();
 }

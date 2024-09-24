@@ -1,6 +1,13 @@
 package ru.yandex.kanban.manager;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import ru.yandex.kanban.http.DurationAdapter;
+import ru.yandex.kanban.http.LocalDateTimeAdapter;
+
 import java.io.File;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public final class Managers {
 
@@ -31,5 +38,12 @@ public final class Managers {
             DEFAULT_HISTORY = new InMemoryHistoryManager();
         }
         return DEFAULT_HISTORY;
+    }
+
+    public static Gson getGson() {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter());
+        gsonBuilder.registerTypeAdapter(Duration.class, new DurationAdapter());
+        return gsonBuilder.create();
     }
 }

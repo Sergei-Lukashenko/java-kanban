@@ -18,7 +18,7 @@ public class FileBackedTaskManagerTest {
         try {
             file = File.createTempFile("java-kanban", null, null);
         } catch (IOException exception) {
-            exception.printStackTrace();
+            System.out.println(exception);
         }
         manager = new FileBackedTaskManager(file);
     }
